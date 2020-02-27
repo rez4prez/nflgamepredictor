@@ -1,5 +1,7 @@
 # nflgamepredictor
 
+[Formatted Proposal](https://docs.google.com/document/d/1bOWHW2r9wwG55YrsT1oUCC2yPXIF-s1IUKgZcicKfW4/edit)
+
 The Big Idea:
 
 For this project, I am hoping to combine my interest in sports, analytics, and machine learning to build a model that can predict the results of NFL games with relative accuracy. The sports betting market is already a booming industry in America and is expected to reach $8 billion by 2025. This number only accounts for the revenue generated via registered sportsbooks, as sports fans often compete at the individual level in fantasy leagues and Pick em’ Pools. Thus, an individual's ability to accurately predict the results of sporting events is often tied to both their income and their dignity. While many habitual gamblers do take statistics and historical trends into account when placing their bets, it is impossible to completely remove bias from human-generated decisions. In building this model, I intend to remove this inherent bias and identify the features that most accurately reflect the results of NFL games.
