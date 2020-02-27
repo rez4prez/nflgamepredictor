@@ -1,6 +1,6 @@
 # nflgamepredictor
 
-[Formatted Proposal](https://docs.google.com/document/d/1bOWHW2r9wwG55YrsT1oUCC2yPXIF-s1IUKgZcicKfW4/edit)
+[Formatted Proposal](https://docs.google.com/document/d/1bOWHW2r9wwG55YrsT1oUCC2yPXIF-s1IUKgZcicKfW4/edit?usp=sharing)
 
 The Big Idea:
 
