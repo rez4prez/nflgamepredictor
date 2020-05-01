@@ -1,0 +1,5 @@
+1. pf_winlosses() weeks only actually need to be set from 2 to 18 instead of 2 to 19 because we are concerned with the PF/PA nad W/L going into the game, not after the game.
+2. Found that once you get to year 2016 the abbreviation for Jacksonville changes from JAC to JAX, so must use this code games = nflgame.games(2016, week=2, home='JAX', away='JAX', kind='REG', started=False)
+3. games = nflgame.games(2017, week=1, home='TB', away='TB', kind='REG', started=False) is an empty list not an object. Tampa Bay and Miami had Bye Weeks week 1 of the season, wtf
+4. went into gamelines.csv and corrected by hand b/c i was having toruble doing it in python
+5. Replaced all LAR's in gamelines.csv with LA's b/c this matches initial merge
