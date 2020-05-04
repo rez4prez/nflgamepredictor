@@ -1,76 +1,50 @@
-import nflgame
+import numpy as np
 import pandas as pd
-import requests
-from bs4 import BeautifulSoup
-import re
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
-def remove_tags(item):
-    """
-    Converts item to a string and removes HTML tags
-    """
-    item = str(item)
-    item = item.replace('<', '(')
-    item = item.replace('>', ')')
-    item = re.sub(r" ?\([^)]+\)", "", item)
-    item = item.strip()
-    return item
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.metrics import roc_auc_score
+from mlxtend.feature_selection import SequentialFeatureSelector as SFS
+from sklearn.preprocessing import StandardScaler
 
 
-d = {
-'Away Team':[],
-'Home Team':[],
-'Game':[],
-'Week': [],
-'Year': [],
-#'Date': [],
-'Road Closing Spread':[],
-'Home Closing Spread':[],
-}
-for i in range(1,18):
-    url = f'https://thefootballlines.com/nfl/week-{i}/point-spreads'
-    page = requests.get(url)
-    soup = BeautifulSoup(page.text, 'html.parser')
-    games = soup.select('td.views-field-Home-Score')
-    for game in games:
-        game = remove_tags(game)
-        d['Game'].append(game)
-        d['Week'].append(i)
-    road_spread = soup.select('td.views-field-Away-Closing-Spread')
-    for spread in road_spread:
-        spread = remove_tags(spread)
-        d['Road Closing Spread'].append(spread)
-    home_spread = soup.select('td.views-field-Home-Closing-Spread')
-    for spread in home_spread:
-        spread = remove_tags(spread)
-        d['Home Closing Spread'].append(spread)
-    dates = soup.select('td.views-field-Date')
-    for date in dates:
-        date = remove_tags(date)
-        year = ''
-        for i in range(4): #only takes year from date column
-            year = year + str(date[i])
-        d['Year'].append(year)
-
-#make game column comma delimtted
-for game in d['Game']:
-    game = game.replace(' ', ',')
-    game = game.split(',')
-    for i in range(0, len(game), 5):
-        d['Away Team'].append(game[i])
-    for i in range(3, len(game), 5):
-        d['Home Team'].append(game[i])
-
-#delete game key as we no longer need it in dataframe
-del d['Game']
-
-
-
-    
-
-
+nflgames = pd.read_csv('nflfull.csv')
+new = nflgames[['Home Win?', 'Home PF', 'Home PA',
+                'Home Wins to Date', 'Road Closing Spread']]
+x = new.drop('Home Win?', 1)  # Feature Matrix
+y = new['Home Win?']  # target variable
+print(x.isnull().sum())  # no missing values in any of the columns
+x_train, x_test, y_train, y_test = train_test_split(
+    x, y, test_size=0.2, random_state=0)
+model = RandomForestClassifier(
+    n_estimators=100, random_state=0, n_jobs=-1).fit(x_train, y_train)
+print(x_test)
+d = {'Home PF': [48], 'Home PA': [63],
+     'Home Wins to Date': [5], 'Road Closing Spread': [5]}
 df = pd.DataFrame(d)
+new_test = pd.concat([x_test, df])
+print(new_test)
+y_pred = model.predict(new_test)
+print(y_pred)
 
-df.to_csv('gamelinestest2.csv')
+y_pred = model.predict(x)
+y_pred = list(y_pred)
+predictions = dict()
+predictions['predictions'] = y_pred
+print(predictions)
 
+new['Predictions'] = predictions['predictions']
+print(new)
 
+new.to_csv("nflpredictionsmodel.csv")
+
+correct = 0
+for i in range(len(new['Home Win?'])):
+    if new['Home Win?'][i] == new['Predictions'][i]:
+        correct += 1
+
+accuracy = correct / len(new['Home Win?'])
+print(accuracy)

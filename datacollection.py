@@ -5,30 +5,31 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
+
 def nflgames_2010_to_2019():
     """
-    Returns a dataframe containing general information pertaining to all regualr season NFL games from 2010-2019
+    Returns a dataframe containing general information pertaining to all regular season NFL games from 2010-2019
     """
 
     data = {
-    'Home Win?':[],
-    'Away Win?':[],
-    'Score Differential':[],
-    'Year':[],
-    'Week':[],
-    'Home Team':[],
-    'Away Team':[],
-    'Score Home':[],
-    'Score Away':[]}
+        'Home Win?': [],
+        'Away Win?': [],
+        'Score Differential': [],
+        'Year': [],
+        'Week': [],
+        'Home Team': [],
+        'Away Team': [],
+        'Score Home': [],
+        'Score Away': []}
 
     for x in range(2010, 2020):
-        for z in range(1,18):
+        for z in range(1, 18):
             try:
                 games = nflgame.games(x, week=z)
                 for i in range(len(games)):
                     data['Year'].append(x)
                     data['Week'].append(z)
-                    data['Home Team'].append(games[i].home) 
+                    data['Home Team'].append(games[i].home)
                     data['Away Team'].append(games[i].away)
                     data['Score Home'].append(games[i].score_home)
                     data['Score Away'].append(games[i].score_away)
@@ -41,9 +42,11 @@ def nflgames_2010_to_2019():
                     else:
                         data['Home Win?'].append(0)
                         data['Away Win?'].append(0)
-                    data['Score Differential'].append(abs(data['Score Home'][i] - data['Score Away'][i]))
+                    data['Score Differential'].append(
+                        abs(data['Score Home'][i] - data['Score Away'][i]))
             except:
-                pass #if an error occurs (ie. a certain week within a season has no game data for some reason, it will do nothing and skip to next iteration)
+                # if an error occurs (ie. a certain week within a season has no game data for some reason, it will do nothing and skip to next iteration)
+                pass
     for n, i in enumerate(data['Home Team']):
         if i == 'JAX':
             data['Home Team'][n] = 'JAC'
@@ -56,20 +59,24 @@ def nflgames_2010_to_2019():
 
 
 def pf_winlosses():
+    """
+    Returns a dataframe containing PF, PA, Wins to Date, and Losses to Date information for all contests
+    """
     points_data = {
-    'Year':[],
-    'Week':[],
-    'Team':[],
-    'PF':[],
-    'PA':[],
-    'Wins to Date':[],
-    'Losses to Date':[],
-    'Ties':[]}
+        'Year': [],
+        'Week': [],
+        'Team': [],
+        'PF': [],
+        'PA': [],
+        'Wins to Date': [],
+        'Losses to Date': [],
+        'Ties': []}
 
     teams = []
     for i in nflgame.teams:
         teams.append(i[0])
-    teams.append('JAX') #after 2015 the abbreviation from nflgames changes from JAC to JAX
+    # after 2015 the abbreviation from nflgames changes from JAC to JAX
+    teams.append('JAX')
 
     for team in teams:
         for x in range(2010, 2020):
@@ -78,13 +85,16 @@ def pf_winlosses():
             wins = 0
             losses = 0
             ties = 0
-            for z in range(2,19):
+            for z in range(2, 19):
                 try:
-                    games = nflgame.games(x, week=z-1, home=team, away=team, kind='REG', started=False)
-                    for i in range(len(games)): #pretty sure this statement is unnecssary cause were singling out a single game 
+                    games = nflgame.games(
+                        x, week=z-1, home=team, away=team, kind='REG', started=False)
+                    # pretty sure this statement is unnecssary cause were singling out a single game
+                    for i in range(len(games)):
                         if games[i].home == team:
                             points_for = points_for + games[i].score_home
-                            points_against = points_against + games[i].score_away
+                            points_against = points_against + \
+                                games[i].score_away
                             if games[i].score_home > games[i].score_away:
                                 wins += 1
                             elif games[i].score_home == games[i].score_away:
@@ -93,7 +103,8 @@ def pf_winlosses():
                                 losses += 1
                         else:
                             points_for = points_for + games[i].score_away
-                            points_against = points_against + games[i].score_home
+                            points_against = points_against + \
+                                games[i].score_home
                             if games[i].score_away > games[i].score_home:
                                 wins += 1
                             elif games[i].score_home == games[i].score_away:
@@ -120,7 +131,7 @@ def pf_winlosses():
 
 def correct_weeks():
     """
-    Handles the edge cases where Byes messed up week numbers
+    Handles the edge cases where Byes led to the generation of incorrect week numbers in the points_data dataframe. Generates a new dataframe with the corrected weeks.
     """
     points_data = pf_winlosses()
     weeks = points_data['Week']
@@ -139,13 +150,21 @@ def correct_weeks():
 
 
 def merge_initial():
+    """
+    Merges the dataframes from nflgames_2010_to_2019() and correct_weeks()
+    """
     d1 = nflgames_2010_to_2019()
     d2 = correct_weeks()
-    new = pd.merge(d1, d2, how='left', left_on = ['Year', 'Week', 'Home Team'], right_on = ['Year', 'Week', 'Team'])
-    new = new.rename(columns={'PF': 'Home PF', 'PA': 'Home PA', 'Wins to Date': 'Home Wins to Date', 'Losses to Date': 'Home Losses to Date', 'Ties': 'Home Ties to Date'})
-    new2 = pd.merge(new, d2, how='left', left_on = ['Year', 'Week', 'Away Team'], right_on = ['Year', 'Week', 'Team'])    
-    new2 = new2.rename(columns={'PF': 'Away PF', 'PA': 'Away PA', 'Wins to Date': 'Away Wins to Date', 'Losses to Date': 'Away Losses to Date', 'Ties': 'Away Ties to Date'})
+    new = pd.merge(d1, d2, how='left', left_on=[
+                   'Year', 'Week', 'Home Team'], right_on=['Year', 'Week', 'Team'])
+    new = new.rename(columns={'PF': 'Home PF', 'PA': 'Home PA', 'Wins to Date': 'Home Wins to Date',
+                              'Losses to Date': 'Home Losses to Date', 'Ties': 'Home Ties to Date'})
+    new2 = pd.merge(new, d2, how='left', left_on=[
+                    'Year', 'Week', 'Away Team'], right_on=['Year', 'Week', 'Team'])
+    new2 = new2.rename(columns={'PF': 'Away PF', 'PA': 'Away PA', 'Wins to Date': 'Away Wins to Date',
+                                'Losses to Date': 'Away Losses to Date', 'Ties': 'Away Ties to Date'})
     return new2
+
 
 def remove_tags(item):
     """
@@ -158,18 +177,22 @@ def remove_tags(item):
     item = item.strip()
     return item
 
+
 def gamelines():
+    """
+    Scrapes historical game spread data from thefootballlines.com and stores it in a pandas dataframe
+    """
     d = {
-    'Away Team':[],
-    'Home Team':[],
-    'Game':[],
-    'Week': [],
-    'Year': [],
-    #'Date': [],
-    'Road Closing Spread':[],
-    'Home Closing Spread':[],
+        'Away Team': [],
+        'Home Team': [],
+        'Game': [],
+        'Week': [],
+        'Year': [],
+        # 'Date': [],
+        'Road Closing Spread': [],
+        'Home Closing Spread': [],
     }
-    for i in range(1,18):
+    for i in range(1, 18):
         url = f'https://thefootballlines.com/nfl/week-{i}/point-spreads'
         page = requests.get(url)
         soup = BeautifulSoup(page.text, 'html.parser')
@@ -190,12 +213,12 @@ def gamelines():
         for date in dates:
             date = remove_tags(date)
             year = ''
-            for i in range(4): #only takes year from date column
+            for i in range(4):  # only takes year from date column
                 year = year + str(date[i])
             year = int(year)
             d['Year'].append(year)
 
-    #make game column comma delimtted
+    # make game column comma delimtted
     for game in d['Game']:
         game = game.replace(' ', ',')
         game = game.split(',')
@@ -204,27 +227,26 @@ def gamelines():
         for i in range(3, len(game), 5):
             d['Home Team'].append(game[i])
 
-    #delete game key as we no longer need it in dataframe
+    # delete game key as we no longer need it in dataframe
     del d['Game']
     d = pd.DataFrame(d)
-    #d.to_csv("gamelines.csv") # have to go in and edit incorrect years and replace LAR abbreviation with LA
+    # d.to_csv("gamelines.csv") # have to go in and edit incorrect years and replace LAR abbreviation with LA, commented out after so I wouldn't overwrite file
 
 
 def merge_full():
+    """
+    Merges dataframe from merge_initial and gamelines. Returns final dataframe for analysis.
+    """
     d1 = merge_initial()
     d2 = pd.read_csv('gamelines.csv')
-    new = pd.merge(d1, d2, how='left', left_on = ['Year', 'Week', 'Home Team'], right_on = ['Year', 'Week', 'Home Team'])
+    new = pd.merge(d1, d2, how='left', left_on=[
+                   'Year', 'Week', 'Home Team'], right_on=['Year', 'Week', 'Home Team'])
     new.fillna(0, inplace=True)
-    new = new.drop(columns=['Team_x', 'Team_y', 'Unnamed: 0', 'Away Team_y' ])
+    new = new.drop(columns=['Team_x', 'Team_y', 'Unnamed: 0', 'Away Team_y'])
     new = new.drop_duplicates()
     return new
 
 
+# generate csv for analysis
 df = merge_full()
 df.to_csv("nflfull.csv")
-
-    
-
-
-
-

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <style>
+      body {
+        text-align: center;
+        background-color: blanchedalmond;
+      }
+      h1 {
+        color: crimson;
+      }
+      p {
+        text-align: center;
+      }
+      img {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="jumbotron">
+      <center><h1>{{ explanation }}</h1></center>
+    </div>
+    <div class="row">
+      <div class="col-3"></div>
+      <div class="col-6">
+        <form method="POST" action="/">
+          <input class="btn btn-primary" type="submit" value="Go Back" />
+        </form>
+        <br />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a2/National_Football_League_logo.svg/1200px-National_Football_League_logo.svg.png"
+          height="500"
+          width="400"
+        />
+      </div>
+      <div class="col-3"></div>
+    </div>
+  </body>
+</html>
